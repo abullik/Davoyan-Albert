@@ -1,0 +1,6 @@
+georg = open('georgia.txt','r',encoding = 'utf-8')
+georgnew = open('target.txt','w',encoding = 'utf-8')
+for line in georg:
+  georgnew = georg.replace('ა','ɑ')
+georg.close
+georgnew.close
