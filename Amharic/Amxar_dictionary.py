@@ -6,17 +6,15 @@ for line in table:
     line = line.strip('\n')
     line = line.split('\t')
     new_table.append(line)
-for i in range(len(new_table)):                 # выводит по строкам
+for i in range(len(new_table)):                 # итерация по индексам, отвечающим за строки
     for j in range(len(new_table[i])):          # нашли столбцы
-        if i!=0 or j!=0:
+        if i!=0 and j!=0:
             concord[new_table[i][j]]= new_table[i][0]+new_table[0][j]
-print (concord)
 
+for k,v in concord.items():
+    print (k + ' : ' + v)
 
 table2.close()
 
-#print (new_table[9][3])
-#print (new_table)
-        
         
     
