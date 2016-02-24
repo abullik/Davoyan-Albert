@@ -1,2 +1,2 @@
 # Davoyan-Albert
-Programming with Python
+HSE student pursuing Master degree in Computational Linguistics.
