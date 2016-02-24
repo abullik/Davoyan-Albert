@@ -118,7 +118,7 @@ def filefolder(url):
     file.write(introtext[0].text_content().strip() + '\n' + '\n')
 
     article = tree.find_class('itemFullText')
-    file.write(article[0].text_content().strip() + '\n')
+    file.write(article[0].text_content().strip())
 
     file.close()
     if not os.path.exists(year):
