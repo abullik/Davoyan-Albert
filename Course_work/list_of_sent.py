@@ -1,16 +1,6 @@
 
 # coding: utf-8
 
-# In[2]:
-
-# verbs = []
-# with open('train_verbs.txt','r',encoding='utf-8') as f:
-#     for line in f:
-#         verbs.append(line.strip())
-# for i in verbs:
-#     print(i, end=' ') 
-
-
 # Запись предложений, где встречается глагол (verb), в файл, имя которого мы указываем в filename.
 
 # In[2]:
@@ -39,10 +29,7 @@ def findsent(verb, table, filename):
     print('Processing time: {}'.format((time() - start) / 60))
 
 
-# Соберем все предложения с глаголом "создать" из корпуса, разбитого на 4 документа. Запись в документ list_of_sent.txt
-
 # In[3]:
-
 import os
 for doc in os.listdir(".\corpora"):
     doc = pd.read_csv(".\corpora\\" + doc,delimiter='\t',header=0,encoding='utf-8')
