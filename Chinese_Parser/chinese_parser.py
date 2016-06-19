@@ -64,6 +64,6 @@ def write_to_xml(parsed, filename):
 sent_no = 1
 for i in text:
     sentence = parse_sent(i, dictionary)
-    write_to_xml(sentence, 'chinese_sentences/Sentence' + str(count) +'.xml')
+    write_to_xml(sentence, 'chinese_sentences/Sentence' + str(sent_no) +'.xml')
     sent_no += 1
 
