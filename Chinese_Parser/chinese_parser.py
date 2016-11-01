@@ -13,7 +13,9 @@ with open('cedict_ts.u8', 'r', encoding='utf-8') as chinese:
         if line[0] == '#':
             continue
         line = line.split()
-        dictionary[line[1]] = dictionary.get(line[1], []) + [' '.join(line[2:])]
+        dictionary[line[1]] = dictionary.get(line[1],
+                                             []) + [' '.join(line[2:])]
+
 
 def parse_sent(sent, dictionary):
     result = []
@@ -24,15 +26,16 @@ def parse_sent(sent, dictionary):
                 result.append((seq, dictionary[seq]))
                 seq = ''
             result.append(c)
-        else:    
+        else:
             seq += c
             if seq not in dictionary:
                 result.append((seq[:-1], dictionary[seq[:-1]]))
                 seq = seq[-1]
     return result
 
+
 def write_to_xml(parsed, filename):
-    
+
     import re
     import xml.etree.ElementTree as ET
     html = ET.Element('html')
@@ -58,12 +61,17 @@ def write_to_xml(parsed, filename):
         ET.SubElement(w, None).text = i[0]
     ET.SubElement(body, None).tail = '\n'
     ET.SubElement(html, None).tail = '\n'
-    
-    ET.ElementTree(html).write(filename, encoding='utf-8', xml_declaration=True, short_empty_elements=False)
+
+    ET.ElementTree(html).write(
+        filename,
+        encoding='utf-8',
+        xml_declaration=True,
+        short_empty_elements=False)
+
 
 sent_no = 1
 for i in text:
     sentence = parse_sent(i, dictionary)
-    write_to_xml(sentence, 'chinese_sentences/Sentence' + str(sent_no) +'.xml')
+    write_to_xml(sentence,
+                 'chinese_sentences/Sentence' + str(sent_no) + '.xml')
     sent_no += 1
-

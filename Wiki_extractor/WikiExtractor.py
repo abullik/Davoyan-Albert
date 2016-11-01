@@ -32,7 +32,6 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
-
 """Wikipedia Extractor:
 Extracts and cleans text from a Wikipedia database dump and stores output in a
 number of files of similar size in a given directory.
@@ -102,12 +101,10 @@ acceptedNamespaces = ['w', 'wiktionary', 'wikt']
 # Drop these elements from article text
 #
 discardElements = [
-    'gallery', 'timeline', 'noinclude', 'pre',
-    'table', 'tr', 'td', 'th', 'caption', 'div',
-    'form', 'input', 'select', 'option', 'textarea',
-    'ul', 'li', 'ol', 'dl', 'dt', 'dd', 'menu', 'dir',
-    'ref', 'references', 'img', 'imagemap', 'source', 'small',
-    'sub', 'sup'
+    'gallery', 'timeline', 'noinclude', 'pre', 'table', 'tr', 'td', 'th',
+    'caption', 'div', 'form', 'input', 'select', 'option', 'textarea', 'ul',
+    'li', 'ol', 'dl', 'dt', 'dd', 'menu', 'dir', 'ref', 'references', 'img',
+    'imagemap', 'source', 'small', 'sub', 'sup'
 ]
 
 # This is obtained from <siteinfo>
@@ -158,12 +155,10 @@ selfClosingTags = ('br', 'hr', 'nobr', 'ref', 'references', 'nowiki')
 
 # These tags are dropped, keeping their content.
 # handle 'a' separately, depending on keepLinks
-ignoredTags = (
-    'abbr', 'b', 'big', 'blockquote', 'center', 'cite', 'em',
-    'font', 'h1', 'h2', 'h3', 'h4', 'hiero', 'i', 'kbd', 'nowiki',
-    'p', 'plaintext', 's', 'span', 'strike', 'strong',
-    'tt', 'u', 'var'
-)
+ignoredTags = ('abbr', 'b', 'big', 'blockquote', 'center', 'cite', 'em',
+               'font', 'h1', 'h2', 'h3', 'h4', 'hiero', 'i', 'kbd', 'nowiki',
+               'p', 'plaintext', 's', 'span', 'strike', 'strong', 'tt', 'u',
+               'var')
 
 placeholder_tags = {'math': 'formula', 'code': 'codice'}
 
@@ -240,7 +235,8 @@ ignored_tag_patterns = []
 
 
 def ignoreTag(tag):
-    left = re.compile(r'<%s\b.*?>' % tag, re.IGNORECASE | re.DOTALL)  # both <ref> and <reference>
+    left = re.compile(r'<%s\b.*?>' % tag, re.IGNORECASE |
+                      re.DOTALL)  # both <ref> and <reference>
     right = re.compile(r'</\s*%s>' % tag, re.IGNORECASE)
     ignored_tag_patterns.append((left, right))
 
@@ -250,14 +246,15 @@ for tag in ignoredTags:
 
 # Match selfClosing HTML tags
 selfClosing_tag_patterns = [
-    re.compile(r'<\s*%s\b[^>]*/\s*>' % tag, re.DOTALL | re.IGNORECASE) for tag in selfClosingTags
-    ]
+    re.compile(r'<\s*%s\b[^>]*/\s*>' % tag, re.DOTALL | re.IGNORECASE)
+    for tag in selfClosingTags
+]
 
 # Match HTML placeholder tags
-placeholder_tag_patterns = [
-    (re.compile(r'<\s*%s(\s*| [^>]+?)>.*?<\s*/\s*%s\s*>' % (tag, tag), re.DOTALL | re.IGNORECASE),
-     repl) for tag, repl in placeholder_tags.items()
-    ]
+placeholder_tag_patterns = [(
+    re.compile(r'<\s*%s(\s*| [^>]+?)>.*?<\s*/\s*%s\s*>' %
+               (tag, tag), re.DOTALL | re.IGNORECASE), repl)
+                            for tag, repl in placeholder_tags.items()]
 
 # Match preformatted lines
 preformatted = re.compile(r'^ .*?$')
@@ -278,7 +275,6 @@ spaces = re.compile(r' {2,}')
 
 # Matches dots
 dots = re.compile(r'\.{4,}')
-
 
 # ======================================================================
 
@@ -382,7 +378,8 @@ class TemplateArg(object):
         paramName = extractor.expandTemplates(paramName)
         res = ''
         if paramName in params:
-            res = params[paramName]  # use parameter value specified in template invocation
+            res = params[
+                paramName]  # use parameter value specified in template invocation
         elif self.default:  # use the default value
             defaultValue = self.default.subst(params, extractor, depth + 1)
             res = extractor.expandTemplates(defaultValue)
@@ -393,6 +390,7 @@ class TemplateArg(object):
 # ======================================================================
 
 substWords = 'subst:|safesubst:'
+
 
 class Extractor(object):
     """
@@ -418,7 +416,6 @@ class Extractor(object):
     # Whether to expand templates
     expand_templates = True
 
-
     def __init__(self, id, title, lines):
         """
         :param id: id of page.
@@ -441,7 +438,8 @@ class Extractor(object):
         """
         logging.info("%s\t%s", self.id, self.title)
         url = get_url(self.id)
-        header = '<doc id="%s" url="%s" title="%s">\n' % (self.id, url, self.title)
+        header = '<doc id="%s" url="%s" title="%s">\n' % (self.id, url,
+                                                          self.title)
         # Separate header from text with a newline.
         header += self.title + '\n\n'
         header = header.encode('utf-8')
@@ -459,13 +457,12 @@ class Extractor(object):
             out.write(line.encode('utf-8'))
             out.write('\n')
         out.write(footer)
-        errs = (self.template_title_errs,
-                self.recursion_exceeded_1_errs,
-                self.recursion_exceeded_2_errs,
-                self.recursion_exceeded_3_errs)
+        errs = (self.template_title_errs, self.recursion_exceeded_1_errs,
+                self.recursion_exceeded_2_errs, self.recursion_exceeded_3_errs)
         if any(errs):
-            logging.warn("Template errors in article '%s' (%s): title(%d) recursion(%d, %d, %d)",
-                         self.title, self.id, *errs)
+            logging.warn(
+                "Template errors in article '%s' (%s): title(%d) recursion(%d, %d, %d)",
+                self.title, self.id, *errs)
 
     def clean(self):
         """
@@ -473,7 +470,7 @@ class Extractor(object):
         @see https://www.mediawiki.org/wiki/Help:Formatting
         """
         text = self.text
-        self.text = ''          # save memory
+        self.text = ''  # save memory
         if Extractor.expand_templates:
             # expand templates
             # See: http://www.mediawiki.org/wiki/Help:Templates
@@ -543,7 +540,8 @@ class Extractor(object):
 
         # Drop discarded elements
         for tag in discardElements:
-            text = dropNested(text, r'<\s*%s\b[^>/]*>' % tag, r'<\s*/\s*%s>' % tag)
+            text = dropNested(text, r'<\s*%s\b[^>/]*>' % tag, r'<\s*/\s*%s>' %
+                              tag)
 
         if not self.toHTML:
             # Turn into text what is left (&amp;nbsp;) and <syntaxhighlight>
@@ -553,7 +551,8 @@ class Extractor(object):
         for pattern, placeholder in placeholder_tag_patterns:
             index = 1
             for match in pattern.finditer(text):
-                text = text.replace(match.group(), '%s_%d' % (placeholder, index))
+                text = text.replace(match.group(), '%s_%d' %
+                                    (placeholder, index))
                 index += 1
 
         text = text.replace('<<', u'«').replace('>>', u'»')
@@ -566,12 +565,12 @@ class Extractor(object):
         text = dots.sub('...', text)
         text = re.sub(u' (,:\.\)\]»)', r'\1', text)
         text = re.sub(u'(\[\(«) ', r'\1', text)
-        text = re.sub(r'\n\W+?\n', '\n', text, flags=re.U)  # lines with only punctuations
+        text = re.sub(r'\n\W+?\n', '\n', text,
+                      flags=re.U)  # lines with only punctuations
         text = text.replace(',,', ',').replace(',.', '.')
         if escape_doc:
             text = cgi.escape(text)
         return text
-
 
     # ----------------------------------------------------------------------
     # Expand templates
@@ -686,7 +685,8 @@ class Extractor(object):
                 if ']]' not in param:  # if the value does not contain a link, trim whitespace
                     param = param.strip()
                 templateParams[str(unnamedParameterCounter)] = param
-        logging.debug('   templateParams> %s', '|'.join(templateParams.values()))
+        logging.debug('   templateParams> %s',
+                      '|'.join(templateParams.values()))
         return templateParams
 
     def expandTemplate(self, body):
@@ -765,7 +765,8 @@ class Extractor(object):
         colon = title.find(':')
         if colon > 1:
             funct = title[:colon]
-            parts[0] = title[colon + 1:].strip()  # side-effect (parts[0] not used later)
+            parts[0] = title[
+                colon + 1:].strip()  # side-effect (parts[0] not used later)
             # arguments after first are not evaluated
             ret = callParserFunction(funct, parts, self.frame)
             return self.expandTemplates(ret)
@@ -1040,7 +1041,10 @@ def findBalanced(text, openDelim, closeDelim):
     """
     openPat = '|'.join([re.escape(x) for x in openDelim])
     # pattern for delimiters expected after each opening delimiter
-    afterPat = {o: re.compile(openPat + '|' + c, re.DOTALL) for o, c in izip(openDelim, closeDelim)}
+    afterPat = {
+        o: re.compile(openPat + '|' + c, re.DOTALL)
+        for o, c in izip(openDelim, closeDelim)
+    }
     stack = []
     start = 0
     cur = 0
@@ -1077,6 +1081,7 @@ def findBalanced(text, openDelim, closeDelim):
 
 # Only minimal support
 # FIXME: import Lua modules.
+
 
 def if_empty(*rest):
     """
@@ -1125,7 +1130,6 @@ modules = {
     'convert': {
         'convert': lambda x, u, *rest: x + ' ' + u,  # no conversion
     },
-
     'If empty': {
         'main': if_empty
     }
@@ -1230,30 +1234,15 @@ class MagicWords(object):
     def __setitem__(self, name, value):
         self.values[name] = value
 
-    switches = (
-        '__NOTOC__',
-        '__FORCETOC__',
-        '__TOC__',
-        '__TOC__',
-        '__NEWSECTIONLINK__',
-        '__NONEWSECTIONLINK__',
-        '__NOGALLERY__',
-        '__HIDDENCAT__',
-        '__NOCONTENTCONVERT__',
-        '__NOCC__',
-        '__NOTITLECONVERT__',
-        '__NOTC__',
-        '__START__',
-        '__END__',
-        '__INDEX__',
-        '__NOINDEX__',
-        '__STATICREDIRECT__',
-        '__DISAMBIG__'
-    )
+    switches = ('__NOTOC__', '__FORCETOC__', '__TOC__', '__TOC__',
+                '__NEWSECTIONLINK__', '__NONEWSECTIONLINK__', '__NOGALLERY__',
+                '__HIDDENCAT__', '__NOCONTENTCONVERT__', '__NOCC__',
+                '__NOTITLECONVERT__', '__NOTC__', '__START__', '__END__',
+                '__INDEX__', '__NOINDEX__', '__STATICREDIRECT__',
+                '__DISAMBIG__')
 
 
 magicWordsRE = re.compile('|'.join(MagicWords.switches))
-
 
 # ----------------------------------------------------------------------
 # parser functions utilities
@@ -1398,7 +1387,9 @@ def sharp_ifeq(lvalue, rvalue, valueIfTrue, valueIfFalse=None, *args):
 
 
 def sharp_iferror(test, then='', Else=None, *args):
-    if re.match('<(?:strong|span|p|div)\s(?:[^\s>]*\s+)*?class="(?:[^"\s>]*\s+)*?error(?:\s[^">]*)?"', test):
+    if re.match(
+            '<(?:strong|span|p|div)\s(?:[^\s>]*\s+)*?class="(?:[^"\s>]*\s+)*?error(?:\s[^">]*)?"',
+            test):
         return then
     elif Else is None:
         return test.strip()
@@ -1473,45 +1464,27 @@ def sharp_invoke(module, function, frame):
 
 
 parserFunctions = {
-
     '#expr': sharp_expr,
-
     '#if': sharp_if,
-
     '#ifeq': sharp_ifeq,
-
     '#iferror': sharp_iferror,
-
     '#ifexpr': lambda *args: '',  # not supported
-
     '#ifexist': lambda *args: '',  # not supported
-
     '#rel2abs': lambda *args: '',  # not supported
-
     '#switch': sharp_switch,
-
     '# language': lambda *args: '',  # not supported
-
     '#time': lambda *args: '',  # not supported
-
     '#timel': lambda *args: '',  # not supported
-
     '#titleparts': lambda *args: '',  # not supported
 
     # This function is used in some pages to construct links
     # http://meta.wikimedia.org/wiki/Help:URL
     'urlencode': lambda string, *rest: urllib.quote(string.encode('utf-8')),
-
     'lc': lambda string, *rest: string.lower() if string else '',
-
     'lcfirst': lambda string, *rest: lcfirst(string),
-
     'uc': lambda string, *rest: string.upper() if string else '',
-
     'ucfirst': lambda string, *rest: ucfirst(string),
-
     'int': lambda string, *rest: str(int(string)),
-
 }
 
 
@@ -1619,6 +1592,7 @@ def define_template(title, page):
 
 # ----------------------------------------------------------------------
 
+
 def dropNested(text, openDelim, closeDelim):
     """
     A matching function for nested expressions, e.g. namespaces and tables.
@@ -1626,8 +1600,8 @@ def dropNested(text, openDelim, closeDelim):
     openRE = re.compile(openDelim, re.IGNORECASE)
     closeRE = re.compile(closeDelim, re.IGNORECASE)
     # partition text in separate blocks { } { }
-    spans = []                  # pairs (s, e) for each partition
-    nest = 0                    # nesting level
+    spans = []  # pairs (s, e) for each partition
+    nest = 0  # nesting level
     start = openRE.search(text, 0)
     if not start:
         return text
@@ -1635,8 +1609,8 @@ def dropNested(text, openDelim, closeDelim):
     next = start
     while end:
         next = openRE.search(text, next.end())
-        if not next:            # termination
-            while nest:         # close all pending
+        if not next:  # termination
+            while nest:  # close all pending
                 nest -= 1
                 end0 = closeRE.search(text, end.end())
                 if end0:
@@ -1652,7 +1626,7 @@ def dropNested(text, openDelim, closeDelim):
                 # try closing more
                 last = end.end()
                 end = closeRE.search(text, end.end())
-                if not end:     # unbalanced
+                if not end:  # unbalanced
                     if spans:
                         span = (spans[0][0], last)
                     else:
@@ -1664,7 +1638,7 @@ def dropNested(text, openDelim, closeDelim):
                 # advance start, find next close
                 start = next
                 end = closeRE.search(text, next.end())
-                break           # { }
+                break  # { }
         if next != start:
             # { { }
             nest += 1
@@ -1680,7 +1654,7 @@ def dropSpans(spans, text):
     res = ''
     offset = 0
     for s, e in spans:
-        if offset <= s:         # handle nesting
+        if offset <= s:  # handle nesting
             if offset < s:
                 res += text[offset:s]
             offset = e
@@ -2012,7 +1986,8 @@ def makeInternalLink(title, label):
         if colon2 > 1 and title[colon + 1:colon2] not in acceptedNamespaces:
             return ''
     if Extractor.keepLinks:
-        return '<a href="%s">%s</a>' % (urllib.quote(title.encode('utf-8')), label)
+        return '<a href="%s">%s</a>' % (urllib.quote(title.encode('utf-8')),
+                                        label)
     else:
         return label
 
@@ -2037,12 +2012,11 @@ wgUrlProtocols = [
 # as well as U+3000 is IDEOGRAPHIC SPACE for bug 19052
 EXT_LINK_URL_CLASS = r'[^][<>"\x00-\x20\x7F\s]'
 ExtLinkBracketedRegex = re.compile(
-    '\[(((?i)' + '|'.join(wgUrlProtocols) + ')' + EXT_LINK_URL_CLASS + r'+)\s*([^\]\x00-\x08\x0a-\x1F]*?)\]',
-    re.S | re.U)
-EXT_IMAGE_REGEX = re.compile(
-    r"""^(http://|https://)([^][<>"\x00-\x20\x7F\s]+)
+    '\[(((?i)' + '|'.join(wgUrlProtocols) + ')' + EXT_LINK_URL_CLASS +
+    r'+)\s*([^\]\x00-\x08\x0a-\x1F]*?)\]', re.S | re.U)
+EXT_IMAGE_REGEX = re.compile(r"""^(http://|https://)([^][<>"\x00-\x20\x7F\s]+)
     /([A-Za-z0-9_.,~%\-+&;#*?!=()@\x80-\xFF]+)\.((?i)gif|png|jpg|jpeg)$""",
-    re.X | re.S | re.U)
+                             re.X | re.S | re.U)
 
 
 def replaceExternalLinks(text):
@@ -2085,7 +2059,8 @@ def replaceExternalLinks(text):
 def makeExternalLink(url, anchor):
     """Function applied to wikiLinks"""
     if Extractor.keepLinks:
-        return '<a href="%s">%s</a>' % (urllib.quote(url.encode('utf-8')), anchor)
+        return '<a href="%s">%s</a>' % (urllib.quote(url.encode('utf-8')),
+                                        anchor)
     else:
         return anchor
 
@@ -2102,15 +2077,20 @@ def makeExternalImage(url, alt=''):
 # match tail after wikilink
 tailRE = re.compile('\w+')
 
-syntaxhighlight = re.compile('&lt;syntaxhighlight .*?&gt;(.*?)&lt;/syntaxhighlight&gt;', re.DOTALL)
+syntaxhighlight = re.compile(
+    '&lt;syntaxhighlight .*?&gt;(.*?)&lt;/syntaxhighlight&gt;', re.DOTALL)
 
 # skip level 1, it is page name level
 section = re.compile(r'(==+)\s*(.*?)\s*\1')
 
 listOpen = {'*': '<ul>', '#': '<ol>', ';': '<dl>', ':': '<dl>'}
 listClose = {'*': '</ul>', '#': '</ol>', ';': '</dl>', ':': '</dl>'}
-listItem = {'*': '<li>%s</li>', '#': '<li>%s</<li>', ';': '<dt>%s</dt>',
-            ':': '<dd>%s</dd>'}
+listItem = {
+    '*': '<li>%s</li>',
+    '#': '<li>%s</<li>',
+    ';': '<dt>%s</dt>',
+    ':': '<dd>%s</dd>'
+}
 
 
 def compact(text):
@@ -2118,10 +2098,10 @@ def compact(text):
     :param text: convert to HTML.
     """
 
-    page = []             # list of paragraph
-    headers = {}          # Headers for unfilled sections
+    page = []  # list of paragraph
+    headers = {}  # Headers for unfilled sections
     emptySection = False  # empty sections are discarded
-    listLevel = []        # nesting of lists
+    listLevel = []  # nesting of lists
 
     for line in text.split('\n'):
 
@@ -2131,11 +2111,11 @@ def compact(text):
         m = section.match(line)
         if m:
             title = m.group(2)
-            lev = len(m.group(1)) # header level
+            lev = len(m.group(1))  # header level
             if Extractor.toHTML:
                 page.append("<h%d>%s</h%d>" % (lev, title, lev))
             if title and title[-1] not in '!?':
-                title += '.'    # terminate sentence.
+                title += '.'  # terminate sentence.
             headers[lev] = title
             # drop previous headers
             for i in headers.keys():
@@ -2161,7 +2141,7 @@ def compact(text):
             # c: current level char
             # n: next level char
             for c, n in izip_longest(listLevel, line, fillvalue=''):
-                if not n or n not in '*#;:': # shorter or different
+                if not n or n not in '*#;:':  # shorter or different
                     if c:
                         if Extractor.toHTML:
                             page.append(listClose[c])
@@ -2188,7 +2168,8 @@ def compact(text):
                 elif Extractor.keepLists:
                     # FIXME: use item count for #-lines
                     bullet = '1. ' if n == '#' else '- '
-                    page.append('{0:{1}s}'.format(bullet, len(listLevel)) + line)
+                    page.append('{0:{1}s}'.format(bullet, len(listLevel)) +
+                                line)
         elif len(listLevel):
             page.append(line)
             if Extractor.toHTML:
@@ -2253,7 +2234,8 @@ class NextFile(object):
     def _dirname(self):
         char1 = self.dir_index % 26
         char2 = self.dir_index / 26 % 26
-        return os.path.join(self.path_name, '%c%c' % (ord('A') + char2, ord('A') + char1))
+        return os.path.join(self.path_name, '%c%c' %
+                            (ord('A') + char2, ord('A') + char1))
 
     def _filepath(self):
         return '%s/wiki_%02d' % (self._dirname(), self.file_index)
@@ -2299,6 +2281,7 @@ class OutputSplitter(object):
 # READER
 
 tagRE = re.compile(r'(.*?)<(/?\w+)[^>]*>(?:([^<]*)(<.*?>)?)?')
+
 #                    1     2               3      4
 
 
@@ -2421,7 +2404,8 @@ def process_dump(input_file, template_file, out_file, file_size, file_compress,
     if input_file == '-':
         input = sys.stdin
     else:
-        input = fileinput.FileInput(input_file, openhook=fileinput.hook_compressed)
+        input = fileinput.FileInput(
+            input_file, openhook=fileinput.hook_compressed)
 
     # collect siteinfo
     for line in input:
@@ -2450,20 +2434,29 @@ def process_dump(input_file, template_file, out_file, file_size, file_compress,
         # preprocess
         template_load_start = default_timer()
         if template_file and os.path.exists(template_file):
-            logging.info("Preprocessing '%s' to collect template definitions: this may take some time.", template_file)
-            file = fileinput.FileInput(template_file, openhook=fileinput.hook_compressed)
+            logging.info(
+                "Preprocessing '%s' to collect template definitions: this may take some time.",
+                template_file)
+            file = fileinput.FileInput(
+                template_file, openhook=fileinput.hook_compressed)
             load_templates(file)
             file.close()
         else:
             if input_file == '-':
                 # can't scan then reset stdin; must error w/ suggestion to specify template_file
-                raise ValueError("to use templates with stdin dump, must supply explicit template-file")
-            logging.info("Preprocessing '%s' to collect template definitions: this may take some time.", input_file)
+                raise ValueError(
+                    "to use templates with stdin dump, must supply explicit template-file"
+                )
+            logging.info(
+                "Preprocessing '%s' to collect template definitions: this may take some time.",
+                input_file)
             load_templates(input, template_file)
             input.close()
-            input = fileinput.FileInput(input_file, openhook=fileinput.hook_compressed)
+            input = fileinput.FileInput(
+                input_file, openhook=fileinput.hook_compressed)
         template_load_elapsed = default_timer() - template_load_start
-        logging.info("Loaded %d templates in %.1fs", len(templates), template_load_elapsed)
+        logging.info("Loaded %d templates in %.1fs",
+                     len(templates), template_load_elapsed)
 
     # process pages
     logging.info("Starting page extraction from %s.", input_file)
@@ -2483,9 +2476,9 @@ def process_dump(input_file, template_file, out_file, file_size, file_compress,
     worker_count = max(1, process_count)
 
     # reduce job that sorts and prints output
-    reduce = Process(target=reduce_process,
-                     args=(output_queue,
-                           out_file, file_size, file_compress))
+    reduce = Process(
+        target=reduce_process,
+        args=(output_queue, out_file, file_size, file_compress))
     reduce.start()
 
     # initialize jobs queue
@@ -2495,8 +2488,8 @@ def process_dump(input_file, template_file, out_file, file_size, file_compress,
     logging.info("Using %d extract processes.", worker_count)
     workers = []
     for i in xrange(worker_count):
-        extractor = Process(target=extract_process,
-                            args=(jobs_queue, output_queue))
+        extractor = Process(
+            target=extract_process, args=(jobs_queue, output_queue))
         extractor.daemon = True  # only live while parent process lives
         extractor.start()
         workers.append(extractor)
@@ -2508,7 +2501,7 @@ def process_dump(input_file, template_file, out_file, file_size, file_compress,
         if ns not in templateKeys:
             job = (id, title, page, page_num)
             # logging.info('Put: %s %s', id, page_num) # DEBUG
-            jobs_queue.put(job) # goes to any available extract_process
+            jobs_queue.put(job)  # goes to any available extract_process
             page_num += 1
 
     input.close()
@@ -2527,8 +2520,9 @@ def process_dump(input_file, template_file, out_file, file_size, file_compress,
 
     extract_duration = default_timer() - extract_start
     extract_rate = page_num / extract_duration
-    logging.info("Finished %d-process extraction of %d articles in %.1fs (%.1f art/s)",
-                 process_count, page_num, extract_duration, extract_rate)
+    logging.info(
+        "Finished %d-process extraction of %d articles in %.1fs (%.1f art/s)",
+        process_count, page_num, extract_duration, extract_rate)
 
 
 # ----------------------------------------------------------------------
@@ -2545,9 +2539,9 @@ def extract_process(jobs_queue, output_queue):
         if job:
             id, title, page, page_num = job
             # logging.info('Got: %s %s', id, page_num) # DEBUG
-            out = StringIO()                 # memory buffer
+            out = StringIO()  # memory buffer
             try:
-                Extractor(*job[:3]).extract(out) # (id, title, page)
+                Extractor(*job[:3]).extract(out)  # (id, title, page)
                 text = out.getvalue()
             except Exception as e:
                 print(e)
@@ -2560,9 +2554,13 @@ def extract_process(jobs_queue, output_queue):
             break
 
 
-period = 100000                 # progress report period
+period = 100000  # progress report period
+
+
 def reduce_process(output_queue,
-                   out_file=None, file_size=0, file_compress=True):
+                   out_file=None,
+                   file_size=0,
+                   file_compress=True):
     """Pull finished article text, write series of files (or stdout)
     :param output_queue: text to be output.
     :param out_file: filename where to print.
@@ -2576,12 +2574,14 @@ def reduce_process(output_queue,
     else:
         output = sys.stdout
         if file_compress:
-            logging.warn("writing to stdout, so no output compression (use an external tool)")
-    
+            logging.warn(
+                "writing to stdout, so no output compression (use an external tool)"
+            )
+
     interval_start = default_timer()
     # FIXME: use a heap
-    collected_pages = {}        # collected pages
-    next_page = 0               # sequence numbering of page
+    collected_pages = {}  # collected pages
+    next_page = 0  # sequence numbering of page
     while True:
         if next_page in collected_pages:
             output.write(collected_pages.pop(next_page))
@@ -2589,8 +2589,8 @@ def reduce_process(output_queue,
             # progress report
             if next_page % period == 0:
                 interval_rate = period / (default_timer() - interval_start)
-                logging.info("Extracted %d articles (%.1f art/s)",
-                             next_page, interval_rate)
+                logging.info("Extracted %d articles (%.1f art/s)", next_page,
+                             interval_rate)
                 interval_start = default_timer()
         else:
             # mapper puts None to signal finish
@@ -2601,11 +2601,13 @@ def reduce_process(output_queue,
             collected_pages[page_num] = text
             # FIXME: if an extractor dies, process stalls; the other processes
             # continue to produce pairs, filling up memory.
-            if len(collected_pages) > 200: # DEBUG
-                logging.debug('Collected %d, wait: %d, %d', len(collected_pages),
-                              next_page, next_page == page_num)
+            if len(collected_pages) > 200:  # DEBUG
+                logging.debug('Collected %d, wait: %d, %d',
+                              len(collected_pages), next_page,
+                              next_page == page_num)
     if output != sys.stdout:
         output.close()
+
 
 escape_doc = True
 # ----------------------------------------------------------------------
@@ -2618,49 +2620,77 @@ def main():
     global urlbase, acceptedNamespaces
     global templateCache, escape_doc
 
-    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),
-                                     formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     description=__doc__)
-    parser.add_argument("input",
-                        help="XML wiki dump file")
+    parser = argparse.ArgumentParser(
+        prog=os.path.basename(sys.argv[0]),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=__doc__)
+    parser.add_argument("input", help="XML wiki dump file")
     groupO = parser.add_argument_group('Output')
-    groupO.add_argument("-o", "--output", default="text",
-                        help="directory for extracted files (or '-' for dumping to stdout)")
-    groupO.add_argument("-b", "--bytes", default="1M",
-                        help="maximum bytes per output file (default %(default)s)",
-                        metavar="n[KMG]")
-    groupO.add_argument("-c", "--compress", action="store_true",
-                        help="compress output files using bzip")
+    groupO.add_argument(
+        "-o",
+        "--output",
+        default="text",
+        help="directory for extracted files (or '-' for dumping to stdout)")
+    groupO.add_argument(
+        "-b",
+        "--bytes",
+        default="1M",
+        help="maximum bytes per output file (default %(default)s)",
+        metavar="n[KMG]")
+    groupO.add_argument(
+        "-c",
+        "--compress",
+        action="store_true",
+        help="compress output files using bzip")
 
     groupP = parser.add_argument_group('Processing')
-    groupP.add_argument("--html", action="store_true",
-                        help="produce HTML output, subsumes --links")
-    groupP.add_argument("-l", "--links", action="store_true",
-                        help="preserve links")
-    groupP.add_argument("--lists", action="store_true",
-                        help="preserve lists")
-    groupP.add_argument("-ns", "--namespaces", default="", metavar="ns1,ns2",
-                        help="accepted namespaces")
-    groupP.add_argument("--templates",
-                        help="use or create file containing templates")
-    groupP.add_argument("--no-templates", action="store_false",
-                        help="Do not expand templates")
-    groupP.add_argument("--escapedoc", action="store_true",
-                        help="use to escape the contents of the output <doc>...</doc>")
+    groupP.add_argument(
+        "--html",
+        action="store_true",
+        help="produce HTML output, subsumes --links")
+    groupP.add_argument(
+        "-l", "--links", action="store_true", help="preserve links")
+    groupP.add_argument("--lists", action="store_true", help="preserve lists")
+    groupP.add_argument(
+        "-ns",
+        "--namespaces",
+        default="",
+        metavar="ns1,ns2",
+        help="accepted namespaces")
+    groupP.add_argument(
+        "--templates", help="use or create file containing templates")
+    groupP.add_argument(
+        "--no-templates", action="store_false", help="Do not expand templates")
+    groupP.add_argument(
+        "--escapedoc",
+        action="store_true",
+        help="use to escape the contents of the output <doc>...</doc>")
     default_process_count = cpu_count() - 1
-    parser.add_argument("--processes", type=int, default=default_process_count,
-                        help="Number of processes to use (default %(default)s)")
+    parser.add_argument(
+        "--processes",
+        type=int,
+        default=default_process_count,
+        help="Number of processes to use (default %(default)s)")
 
     groupS = parser.add_argument_group('Special')
-    groupS.add_argument("-q", "--quiet", action="store_true",
-                        help="suppress reporting progress info")
-    groupS.add_argument("--debug", action="store_true",
-                        help="print debug info")
-    groupS.add_argument("-a", "--article", action="store_true",
-                        help="analyze a file containing a single article (debug option)")
-    groupS.add_argument("-v", "--version", action="version",
-                        version='%(prog)s ' + version,
-                        help="print program version")
+    groupS.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        help="suppress reporting progress info")
+    groupS.add_argument(
+        "--debug", action="store_true", help="print debug info")
+    groupS.add_argument(
+        "-a",
+        "--article",
+        action="store_true",
+        help="analyze a file containing a single article (debug option)")
+    groupS.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version='%(prog)s ' + version,
+        help="print program version")
 
     args = parser.parse_args()
 
@@ -2675,7 +2705,7 @@ def main():
 
     try:
         power = 'kmg'.find(args.bytes[-1].lower()) + 1
-        file_size = int(args.bytes[:-1]) * 1024 ** power
+        file_size = int(args.bytes[:-1]) * 1024**power
         if file_size < minFileSize:
             raise ValueError()
     except ValueError:
@@ -2709,7 +2739,8 @@ def main():
                 with open(args.templates) as file:
                     load_templates(file)
 
-        file = fileinput.FileInput(input_file, openhook=fileinput.hook_compressed)
+        file = fileinput.FileInput(
+            input_file, openhook=fileinput.hook_compressed)
         for page_data in pages_from(file):
             id, title, ns, page = page_data
             Extractor(id, title, page).extract(sys.stdout)

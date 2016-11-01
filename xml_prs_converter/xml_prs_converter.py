@@ -1,5 +1,5 @@
-
 from lxml import etree
+
 
 def xml_to_prs(xml_file, prs_file):
     input_file_xml = open(xml_file, 'r', encoding='utf-8')
@@ -7,8 +7,10 @@ def xml_to_prs(xml_file, prs_file):
     root_xml = tree_xml.getroot()
 
     with open(prs_file, 'w', encoding='utf-8') as writer:
-        writer.write('#sentno\t#wordno\t#lang\t#graph\t#word\t#indexword\t#nvars\t#nlems\
-                     \t#nvar\t#lem\t#trans\t#trans_ru\t#lex\t#gram\t#flex\t#punctl\t#punctr\t#sent_pos\n')
+        writer.write(
+            '#sentno\t#wordno\t#lang\t#graph\t#word\t#indexword\t#nvars\t#nlems\
+                     \t#nvar\t#lem\t#trans\t#trans_ru\t#lex\t#gram\t#flex\t#punctl\t#punctr\t#sent_pos\n'
+        )
         for sentno, sentence in enumerate(root_xml):
             for wordno, word in enumerate(sentence):
                 word_list = []
@@ -22,7 +24,7 @@ def xml_to_prs(xml_file, prs_file):
                 punct = word.tail.strip()
 
                 for tagno, tag in enumerate(word_list):
-                    cap = 'cap' if tag.get('lex').istitle() else '' 
+                    cap = 'cap' if tag.get('lex').istitle() else ''
 
                     gram = tag.get('gr').split(',')
                     lex = tag.get('gr').split(',')[0]
@@ -37,10 +39,14 @@ def xml_to_prs(xml_file, prs_file):
                     else:
                         sent_pos = ''
 
-                    row = [str(sentno + 1), str(wordno + 1), '', cap, lemma, '', str(len(word)), str(len(different_lex)),
-                           str(tagno + 1), tag.get('lex'), tag.get('trans'), '', lex, gram,
-                           '', '', punct, sent_pos]
+                    row = [
+                        str(sentno + 1), str(wordno + 1), '', cap, lemma, '',
+                        str(len(word)), str(len(different_lex)),
+                        str(tagno + 1), tag.get('lex'), tag.get('trans'), '',
+                        lex, gram, '', '', punct, sent_pos
+                    ]
                     writer.write('\t'.join(row) + '\n')
+
 
 def prs_to_xml(prs_file, xml_file):
     import csv
@@ -80,7 +86,11 @@ def prs_to_xml(prs_file, xml_file):
             se.append(w)
 
     output_file = open(xml_file, 'w', encoding='utf-8')
-    output_file.write(etree.tostring(body, method='xml', pretty_print=True, encoding='utf-8').decode('utf-8'))
+    output_file.write(
+        etree.tostring(
+            body, method='xml', pretty_print=True, encoding='utf-8').decode(
+                'utf-8'))
+
 
 import sys
 if len(sys.argv) < 4:
@@ -89,4 +99,3 @@ elif sys.argv[1] == 'xml_to_prs':
     xml_to_prs(sys.argv[2], sys.argv[3])
 elif sys.argv[1] == 'prs_to_xml':
     prs_to_xml(sys.argv[2], sys.argv[3])
-

@@ -5,17 +5,35 @@ import re, csv, os, shutil
 
 linksfile = open('links.txt', 'w')
 
-colnames = ['path', 'author', 'sex', 'birthday', 'header', 'created', 'sphere',
-            'genre_fi', 'type', 'topic', 'chronotop', 'style', 'audience_age', 'audience_level',
-            'audience_size', 'source', 'publication', 'publisher', 'publ_year',
-            'medium', 'country', 'region', 'language']
+colnames = [
+    'path', 'author', 'sex', 'birthday', 'header', 'created', 'sphere',
+    'genre_fi', 'type', 'topic', 'chronotop', 'style', 'audience_age',
+    'audience_level', 'audience_size', 'source', 'publication', 'publisher',
+    'publ_year', 'medium', 'country', 'region', 'language'
+]
 
-months = {'Январь': '.01.', 'Февраль': '.02.', 'Март': '.03.', 'Апрель': '.04.',
-          'Май': '.05.', 'Июнь': '.06.', 'Июль': '.07.', 'Август': '.08.',
-          'Сентябрь': '.09.', 'Октябрь': '.10.', 'Ноябрь': '.11.', 'Декабрь': '.12.'}
+months = {
+    'Январь': '.01.',
+    'Февраль': '.02.',
+    'Март': '.03.',
+    'Апрель': '.04.',
+    'Май': '.05.',
+    'Июнь': '.06.',
+    'Июль': '.07.',
+    'Август': '.08.',
+    'Сентябрь': '.09.',
+    'Октябрь': '.10.',
+    'Ноябрь': '.11.',
+    'Декабрь': '.12.'
+}
 
 metatable = open('metatable.csv', 'w', encoding='utf-8')
-writer = csv.writer(metatable, quoting=csv.QUOTE_NONE, escapechar='', quotechar='', delimiter='\t')
+writer = csv.writer(
+    metatable,
+    quoting=csv.QUOTE_NONE,
+    escapechar='',
+    quotechar='',
+    delimiter='\t')
 
 
 def getlink(url):
@@ -38,7 +56,7 @@ def getlink(url):
     return cleared
 
 
-def removedubl(list):                                # removes dublicates from the given list
+def removedubl(list):  # removes dublicates from the given list
     new_one = set(list)
     modified = [i for i in new_one]
     return modified
@@ -78,6 +96,7 @@ def metadata(url):
     table[21] = 'Белорецкий'
     table[22] = 'ru'
     return table
+
 
 def filefolder(url):
     '''
@@ -130,20 +149,26 @@ def filefolder(url):
     else:
         os.remove(filename[0] + '.txt')
 
+
 url = 'http://www.belrab.ru'
 all_links = getlink(url)
 
-for i in all_links:                                #iterates through the links found on the main page
-    all_links += getlink(i)                        #and calls the function getlink for every link, removing
-    all_links = removedubl(all_links)              #dublicates
+for i in all_links:  #iterates through the links found on the main page
+    all_links += getlink(
+        i)  #and calls the function getlink for every link, removing
+    all_links = removedubl(all_links)  #dublicates
 
-for i, v in enumerate(all_links):                                   #creates a file containing a list of all the links
-    linksfile.write(str(i + 1) + ': ' + str(v) + '\n')              #we are interested in from the website
+for i, v in enumerate(
+        all_links):  #creates a file containing a list of all the links
+    linksfile.write(str(i + 1) + ': ' + str(v) +
+                    '\n')  #we are interested in from the website
 linksfile.close()
 
-writer.writerow(colnames)                                   #writes the list with the column names to the csv file
-for i in all_links:                                         #and calls the function metadata for every link repeating
-    writer.writerow(metadata(i))                            #the writing process for the generated lists of metadata
-    filefolder(i)                                           #calls the function filefolder for every link
+writer.writerow(
+    colnames)  #writes the list with the column names to the csv file
+for i in all_links:  #and calls the function metadata for every link repeating
+    writer.writerow(
+        metadata(i))  #the writing process for the generated lists of metadata
+    filefolder(i)  #calls the function filefolder for every link
 
 metatable.close()

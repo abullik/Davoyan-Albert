@@ -1,6 +1,5 @@
 __author__ = 'abullik'
 import os, glob
-
 '''
 The following loops find files
 in the subfolders of the previously made
@@ -21,9 +20,7 @@ for file in glob.glob('*/*/*.txt'):
 
 for file in glob.glob('*/*/*.txt'):
     stem = 'mystem.exe -cdig'
-    output = os.path.join('plaintext',file)
+    output = os.path.join('plaintext', file)
     if not os.path.exists(os.path.dirname(output)):
         os.makedirs(os.path.dirname(output))
     os.system(stem + ' ' + file + ' ' + output)
-
-
